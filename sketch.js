@@ -1,16 +1,44 @@
 let searchText = "transparent kawaii dance";
-let gif, webcam, query, input, button;
+let gif, webcam, query, giphySearchInput, searchButton;
 let offset = 1;
 let result = false;
 let dragging = false;
+if (typeof giphyAPIKey === "undefined") {
+  var giphyAPIKey = "no-key";
+}
+// if (giphyAPIKey === undefined) {
+//   let giphyAPIKey = "";
+// }
+
+const newQuery = () => {
+  searchText = giphySearchInput.value();
+};
 
 function setup() {
   createCanvas(400, 300);
-  input = createInput("transparent ");
-  input.position(5, height + 40);
-  button = createButton("Søk");
-  button.position(input.x + input.width, input.y);
-  button.mousePressed(newQuery);
+  giphySearchInput = createInput("transparent ");
+  giphySearchInput.position(5, height + 40);
+  apiKeyInput = createInput("GIPHY api key");
+  apiKeyInput.position(
+    giphySearchInput.x,
+    giphySearchInput.y + giphySearchInput.height + 5
+  );
+
+  searchButton = createButton("Search");
+  searchButton.position(
+    giphySearchInput.x + giphySearchInput.width,
+    giphySearchInput.y
+  );
+  searchButton.mousePressed(newQuery);
+
+  useApiKeyButton = createButton("Save API key");
+  useApiKeyButton.position(
+    giphySearchInput.x + apiKeyInput.width,
+    giphySearchInput.y + giphySearchInput.height + 5
+  );
+  useApiKeyButton.mousePressed(() => {
+    giphyAPIKey = apiKeyInput.value();
+  });
   webcam = createCapture(VIDEO);
   webcam.hide();
   gif = createImg("https://media.giphy.com/media/IUu7swWWXfeyk/giphy.gif");
@@ -20,9 +48,11 @@ function setup() {
     "&q=" +
     encodeURI(searchText) +
     "&limit=1";
-  fetch(query)
-    .then((response) => response.json())
-    .then((data) => (result = data));
+  if (giphyAPIKey !== "no-key") {
+    fetch(query)
+      .then((response) => response.json())
+      .then((data) => (result = data));
+  }
   webcam.position(0, 0);
   webcam.size(400, 300);
   gif.size(130, AUTO);
@@ -42,10 +72,6 @@ function draw() {
 function mouseReleased() {
   dragging = false;
 }
-
-const newQuery = () => {
-  searchText = input.value();
-};
 
 function keyPressed() {
   if (keyCode == RIGHT_ARROW) {
