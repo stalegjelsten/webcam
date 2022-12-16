@@ -1,13 +1,16 @@
-const searchText = "transparent kawaii dance";
-let gif;
-let webcam;
-let query;
+let searchText = "transparent kawaii dance";
+let gif, webcam, query, input, button;
 let offset = 1;
 let result = false;
 let dragging = false;
 
 function setup() {
   createCanvas(400, 300);
+  input = createInput("transparent ");
+  input.position(5, height + 40);
+  button = createButton("Søk");
+  button.position(input.x + input.width, input.y);
+  button.mousePressed(newQuery);
   webcam = createCapture(VIDEO);
   webcam.hide();
   gif = createImg("https://media.giphy.com/media/IUu7swWWXfeyk/giphy.gif");
@@ -22,7 +25,7 @@ function setup() {
     .then((data) => (result = data));
   webcam.position(0, 0);
   webcam.size(400, 300);
-  gif.size(130, 130);
+  gif.size(130, AUTO);
   gif.position(230, 120);
 }
 
@@ -40,8 +43,12 @@ function mouseReleased() {
   dragging = false;
 }
 
+const newQuery = () => {
+  searchText = input.value();
+};
+
 function keyPressed() {
-  if (keyCode == UP_ARROW) {
+  if (keyCode == RIGHT_ARROW) {
     gif.hide();
     offset = Math.ceil(Math.random() * 100);
     query =
@@ -54,11 +61,25 @@ function keyPressed() {
     fetch(query)
       .then((response) => response.json())
       .then((data) => (result = data))
-      .then((gif = createImg(result["data"][0]["images"]["original"].url)));
+      .then((gif = createImg(result["data"][0]["images"]["original"].url)))
+      .then(
+        gif.size(
+          130,
+          Math.floor(
+            (result["data"][0]["images"]["original"].height /
+              result["data"][0]["images"]["original"].width) *
+              130
+          )
+        )
+      );
 
     //result = httpGet(query);
+
     gif.size(130, 130);
-    gif.position(230, 120);
+    gif.position(250, 150);
+    gif.show();
+  }
+  if (keyCode == UP_ARROW) {
     gif.show();
   } else if (keyCode == DOWN_ARROW) {
     gif.hide();
